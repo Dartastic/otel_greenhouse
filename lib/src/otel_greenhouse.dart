@@ -1,15 +1,16 @@
-// Licensed under the Dartastic Pro Software License Agreement.
+// Licensed under the Apache License, Version 2.0
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
-import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
+import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_greenhouse_suppression.dart';
 
 const _tracerName = 'dartastic_otel_libs_greenhouse';
 
-Tracer _tracer() => OTel.tracerProvider().getTracer(_tracerName);
+APITracer _tracer() => OTelAPI.tracerProvider().getTracer(_tracerName);
 
 class GreenhouseResult {
+  /// Creates a result.
   const GreenhouseResult({
     this.onBehalfOfUserId,
     this.entityKind,
@@ -82,8 +83,13 @@ class GreenhouseResult {
   final int? statusCode;
 }
 
+/// What a traced call returned: the value for the caller plus fields
+/// recorded on the span.
 class GreenhouseCallResult<T> {
+  /// Creates a call result.
   const GreenhouseCallResult({required this.value, this.result});
+
+  /// The value returned to the caller.
   final T value;
   final GreenhouseResult? result;
 }
@@ -111,116 +117,116 @@ Future<T> tracedGreenhouse<T>({
   final span = _tracer().startSpan(
     'greenhouse $operation',
     kind: SpanKind.client,
-    attributes: OTel.attributesFromMap(m),
+    attributes: OTelAPI.attributesFromMap(m),
   );
   try {
     final r = await invoke();
     if (r.result != null) {
       final extras = <Attribute<Object>>[];
       if (r.result!.onBehalfOfUserId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'greenhouse.on_behalf_of.user_id',
           r.result!.onBehalfOfUserId!,
         ));
       }
       if (r.result!.entityKind != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'greenhouse.entity.kind',
           r.result!.entityKind!,
         ));
       }
       if (r.result!.entityId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'greenhouse.entity.id',
           r.result!.entityId!,
         ));
       }
       if (r.result!.candidateId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'greenhouse.candidate.id',
           r.result!.candidateId!,
         ));
       }
       if (r.result!.applicationId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'greenhouse.application.id',
           r.result!.applicationId!,
         ));
       }
       if (r.result!.applicationStatus != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'greenhouse.application.status',
           r.result!.applicationStatus!,
         ));
       }
       if (r.result!.jobId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'greenhouse.job.id',
           r.result!.jobId!,
         ));
       }
       if (r.result!.jobStatus != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'greenhouse.job.status',
           r.result!.jobStatus!,
         ));
       }
       if (r.result!.openingId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'greenhouse.opening.id',
           r.result!.openingId!,
         ));
       }
       if (r.result!.officeId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'greenhouse.office.id',
           r.result!.officeId!,
         ));
       }
       if (r.result!.departmentId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'greenhouse.department.id',
           r.result!.departmentId!,
         ));
       }
       if (r.result!.sourceName != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'greenhouse.source.name',
           r.result!.sourceName!,
         ));
       }
       if (r.result!.currentStage != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'greenhouse.current.stage',
           r.result!.currentStage!,
         ));
       }
       if (r.result!.rejectionReason != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'greenhouse.rejection.reason',
           r.result!.rejectionReason!,
         ));
       }
       if (r.result!.scorecardOverall != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'greenhouse.scorecard.overall',
           r.result!.scorecardOverall!,
         ));
       }
       if (r.result!.offerStatus != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'greenhouse.offer.status',
           r.result!.offerStatus!,
         ));
       }
       if (r.result!.rateLimitRemaining != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'greenhouse.rate_limit.remaining',
           r.result!.rateLimitRemaining!,
         ));
       }
       if (r.result!.statusCode != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'http.response.status_code',
           r.result!.statusCode!,
         ));
@@ -231,13 +237,13 @@ Future<T> tracedGreenhouse<T>({
           );
         }
       }
-      if (extras.isNotEmpty) span.addAttributes(OTel.attributes(extras));
+      if (extras.isNotEmpty) span.addAttributes(OTelAPI.attributes(extras));
     }
     return r.value;
   } catch (e, st) {
-    span.addAttributes(OTel.attributes([
-      OTel.attributeString(
-        ErrorResource.errorType.key,
+    span.addAttributes(OTelAPI.attributes([
+      OTelAPI.attributeString(
+        ErrorAttributes.errorType.key,
         e.runtimeType.toString(),
       ),
     ]));
